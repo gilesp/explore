@@ -30,16 +30,32 @@ function init() {
     //setup ground grid
     scene.add( createGround() );
 
+    //add some random cubes
+    var geometry = new THREE.BoxGeometry( 50, 50, 50);
+    var material = new THREE.MeshLambertMaterial({
+        color: 0xffffff,
+        shading: THREE.FlatShading,
+        overdraw: 0.5
+    });
+
+    for( var i = 0; i < 10; i++) {
+        scene.add( randomCube(geometry, material) );
+    }
+
     //lighting
-    var ambientLight = new THREE.AmbientLight( Math.random() * 0x10);
+    var ambientLight = new THREE.AmbientLight( 0x111111 );
     scene.add(ambientLight);
 
-    var directionalLight = new THREE.DirectionalLight( Math.random() * 0xffffff );
-    directionalLight.position.x = Math.random() - 0.5;
-    directionalLight.position.y = Math.random() - 0.5;
-    directionalLight.position.z = Math.random() - 0.5;
-    directionalLight.position.normalize();
-    scene.add( directionalLight );
+    //var directionalLight = new THREE.DirectionalLight( 0xffffff );
+    //directionalLight.position.x = Math.random() - 0.5;
+    //directionalLight.position.y = Math.random() - 0.5;
+    //directionalLight.position.z = Math.random() - 0.5;
+    //directionalLight.position.normalize();
+    //scene.add( directionalLight );
+
+    var light = new THREE.PointLight( 0xffffff );
+    light.position.set( 0, 500, 0 );
+    scene.add(light);
 
     //setup renderer
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -82,6 +98,14 @@ function createGround() {
     return line;
 }
 
+function randomCube(geometry, material) {
+    var cube = new THREE.Mesh( geometry, material );
+    cube.scale.y = Math.floor( Math.random() * 2 + 1);
+    cube.position.x = Math.floor( ( Math.random() * 1000 -500 ) / 50 ) * 50 + 25;
+    cube.position.y = ( cube.scale.y * 50 ) / 2;
+    cube.position.z = Math.floor( ( Math.random() * 1000 - 500 ) /50 ) * 50 + 25;
+    return cube;
+}
 function animate() {
     requestAnimationFrame(animate);
     render();
