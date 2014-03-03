@@ -38,9 +38,19 @@ function init() {
         overdraw: 0.5
     });
 
+    /*
     for( var i = 0; i < 10; i++) {
         scene.add( randomCube(geometry, material) );
     }
+*/
+    for ( var gridX = -10; gridX < 10; gridX++ ) {
+	for ( var gridY = -10; gridY < 10; gridY++ ) {
+	    if ( !(gridX > -10 && gridY > -10) || !(gridX < 9 && gridY < 9) ) {
+		scene.add( cube(geometry, material, gridX, gridY));
+	    }
+	}
+    }
+
 
     //lighting
     var ambientLight = new THREE.AmbientLight( 0x111111 );
@@ -54,7 +64,7 @@ function init() {
     //scene.add( directionalLight );
 
     var light = new THREE.PointLight( 0xffffff );
-    light.position.set( 0, 500, 0 );
+    light.position.set( 0, 250, 0 );
     scene.add(light);
 
     //setup renderer
@@ -84,10 +94,11 @@ function createGround() {
     var geometry = new THREE.Geometry();
 
     for ( var i = -size; i <= size; i+=step ){
-        geometry.vertices.push( new THREE.Vector3( -size, 0, i ));
-        geometry.vertices.push( new THREE.Vector3( size, 0, i ));
-        geometry.vertices.push( new THREE.Vector3( i, 0, -size ));
-        geometry.vertices.push( new THREE.Vector3( i, 0, size ));
+	console.log("step: " + i);
+        geometry.vertices.push(new THREE.Vector3( -size, 0, i ));
+        geometry.vertices.push(new THREE.Vector3( size, 0, i ));
+        geometry.vertices.push(new THREE.Vector3( i, 0, -size ));
+        geometry.vertices.push(new THREE.Vector3( i, 0, size ));
     }
 
     var material = new THREE.LineBasicMaterial( { color: 0x000000, opacity: 0.2 } );
@@ -100,12 +111,31 @@ function createGround() {
 
 function randomCube(geometry, material) {
     var cube = new THREE.Mesh( geometry, material );
-    cube.scale.y = Math.floor( Math.random() * 2 + 1);
-    cube.position.x = Math.floor( ( Math.random() * 1000 -500 ) / 50 ) * 50 + 25;
-    cube.position.y = ( cube.scale.y * 50 ) / 2;
+    //cube.scale.y = Math.floor( Math.random() * 2 + 1);
+    cube.position.x = Math.floor( ( Math.random() * 1000 - 500 ) / 50 ) * 50 + 25;
+    //cube.position.y = ( cube.scale.y * 50 ) / 2;
+    cube.position.y = 25;
     cube.position.z = Math.floor( ( Math.random() * 1000 - 500 ) /50 ) * 50 + 25;
     return cube;
 }
+
+function cube(geometry, material, gridX, gridY) {
+    var cube = new THREE.Mesh( geometry, material );
+    cube.position.y = 25; //raise it to floor level
+
+    var coords = gridToCoord(gridX, gridY);
+    cube.position.x = coords[0];
+    cube.position.z = coords[1];
+
+    return cube;
+}
+
+function gridToCoord(x, y) {
+    var xCoord = x * 50 + 25;
+    var yCoord = y * 50 + 25;
+    return [xCoord, yCoord];
+}
+
 function animate() {
     requestAnimationFrame(animate);
     render();
