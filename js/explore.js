@@ -2,7 +2,7 @@ var container;
 var camera, scene, renderer;
 
 init();
-
+animate();
 
 function init() {
     container = document.createElement('div');
@@ -14,7 +14,7 @@ function init() {
         window.innerWidth / 2, //frustum right plane
         window.innerHeight / 2, //frustum top plane
         window.innerHeight / -2, //frustum bottom plane
-        -500, //frustum near plane
+            -500, //frustum near plane
         1000 //frustum far plane
     );
 
@@ -25,13 +25,25 @@ function init() {
     //setup scene
     scene = new THREE.Scene();
 
+    //camera.lookAt( scene.position );
+
     //setup ground grid
     scene.add( createGround() );
 
+    //lighting
+    var ambientLight = new THREE.AmbientLight( Math.random() * 0x10);
+    scene.add(ambientLight);
+
+    var directionalLight = new THREE.DirectionalLight( Math.random() * 0xffffff );
+    directionalLight.position.x = Math.random() - 0.5;
+    directionalLight.position.y = Math.random() - 0.5;
+    directionalLight.position.z = Math.random() - 0.5;
+    directionalLight.position.normalize();
+    scene.add( directionalLight );
+
     //setup renderer
-    renderer = new THREE.WebGLRenderer();
-    //renderer.setClearColor( 0xf0f0f0 );
-    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setClearColor( 0xf0f0f0 );
 
     container.appendChild( renderer.domElement );
 
@@ -40,34 +52,45 @@ function init() {
 
     onWindowResize();
 
+}
 
-    function onWindowResize () {
-        camera.left = window.innerWidth / - 2;
-        camera.right = window.innerWidth / 2;
-        camera.top = window.innerHeight / 2;
-        camera.bottom = window.innerHeight / - 2;
+function onWindowResize () {
+    camera.left = window.innerWidth / - 2;
+    camera.right = window.innerWidth / 2;
+    camera.top = window.innerHeight / 2;
+    camera.bottom = window.innerHeight / - 2;
+    camera.updateProjectionMatrix();
+    renderer.setSize( window.innerWidth, window.innerHeight );
+}
 
-        camera.updateProjectionMatrix();
+function createGround() {
+    var size = 500, step = 50;
+    var geometry = new THREE.Geometry();
 
-        renderer.setSize( window.innerWidth, window.innerHeight );
+    for ( var i = -size; i <= size; i+=step ){
+        geometry.vertices.push( new THREE.Vector3( -size, 0, i ));
+        geometry.vertices.push( new THREE.Vector3( size, 0, i ));
+        geometry.vertices.push( new THREE.Vector3( i, 0, -size ));
+        geometry.vertices.push( new THREE.Vector3( i, 0, size ));
     }
 
-    function createGround() {
-        var size = 500, step = 50;
-        var geometry = new THREE.Geometry();
+    var material = new THREE.LineBasicMaterial( { color: 0x000000, opacity: 0.2 } );
 
-        for ( var i = -size; i <= size; i+=step ){
-            geometry.vertices.push( new THREE.Vector3( -size, 0, i ));
-            geometry.vertices.push( new THREE.Vector3( size, 0, i ));
-            geometry.vertices.push( new THREE.Vector3( i, 0, -size ));
-            geometry.vertices.push( new THREE.Vector3( i, 0, size ));
-        }
+    var line = new THREE.Line( geometry, material );
+    line.type = THREE.LinePieces;
 
-        var material = new THREE.LineBasicMaterial( { color: 0x000000, opacity: 0.2 } );
+    return line;
+}
 
-        var line = new THREE.Line( geometry, material );
-        line.type = THREE.LinePieces;
+function animate() {
+    requestAnimationFrame(animate);
+    render();
+}
 
-        return line;
-    }
+function render() {
+    var time = Date.now() * 0.0001;
+
+    camera.lookAt(scene.position);
+
+    renderer.render(scene, camera);
 }
