@@ -148,8 +148,11 @@ function animate() {
 }
 
 function render() {
-    var time = Date.now() * 0.0001;
+    var timer = Date.now() * 0.0001;
 
+    //move camera around scene
+    //camera.position.x = Math.cos( timer ) * 200;
+    //camera.position.z = Math.sin( timer ) * 200;
     camera.lookAt(scene.position);
 
     renderer.render(scene, camera);
