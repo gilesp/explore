@@ -38,17 +38,17 @@ function init() {
         overdraw: 0.5
     });
 
-    /*
-    for( var i = 0; i < 10; i++) {
-        scene.add( randomCube(geometry, material) );
-    }
-*/
+
+      for( var i = 0; i < 10; i++) {
+      scene.add( randomCube(geometry, material) );
+      }
+
     for ( var gridX = -10; gridX < 10; gridX++ ) {
-	for ( var gridY = -10; gridY < 10; gridY++ ) {
-	    if ( !(gridX > -10 && gridY > -10) || !(gridX < 9 && gridY < 9) ) {
-		scene.add( cube(geometry, material, gridX, gridY));
-	    }
-	}
+        for ( var gridY = -10; gridY < 10; gridY++ ) {
+            if ( !(gridX > -10 && gridY > -10) || !(gridX < 9 && gridY < 9) ) {
+                scene.add( cube(geometry, material, gridX, gridY));
+            }
+        }
     }
 
 
@@ -56,20 +56,28 @@ function init() {
     var ambientLight = new THREE.AmbientLight( 0x111111 );
     scene.add(ambientLight);
 
-    //var directionalLight = new THREE.DirectionalLight( 0xffffff );
-    //directionalLight.position.x = Math.random() - 0.5;
-    //directionalLight.position.y = Math.random() - 0.5;
-    //directionalLight.position.z = Math.random() - 0.5;
-    //directionalLight.position.normalize();
-    //scene.add( directionalLight );
+    //var light = new THREE.PointLight( 0xffffff );
+    var light = new THREE.DirectionalLight( 0xffffff, 1);
 
-    var light = new THREE.PointLight( 0xffffff );
-    light.position.set( 0, 250, 0 );
+    light.position.set( 200, 500, -100 );
+//    light.position.multiplyScalar(1.3);
+
+    light.castShadow = true;
+    //light.shadowCameraVisible = true; //enable to view & debug camera position
+    light.shadowCameraLeft = -750;
+    light.shadowCameraRight = 750;
+    light.shadowCameraTop = 750;
+    light.shadowCameraBottom = -750;
+    light.shadowCameraFar = 1000;
+    light.shadowDarkness = 0.2;
+
     scene.add(light);
 
     //setup renderer
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setClearColor( 0xf0f0f0 );
+    renderer.shadowMapEnabled = true;
+    renderer.shadowMapSoft = true;
 
     container.appendChild( renderer.domElement );
 
@@ -77,8 +85,8 @@ function init() {
     window.addEventListener( 'resize', onWindowResize, false );
 
     onWindowResize();
-
 }
+
 
 function onWindowResize () {
     camera.left = window.innerWidth / - 2;
@@ -90,23 +98,17 @@ function onWindowResize () {
 }
 
 function createGround() {
-    var size = 500, step = 50;
-    var geometry = new THREE.Geometry();
+    var material = new THREE.MeshLambertMaterial({
+        color: 0xcccccc
+    });
 
-    for ( var i = -size; i <= size; i+=step ){
-	console.log("step: " + i);
-        geometry.vertices.push(new THREE.Vector3( -size, 0, i ));
-        geometry.vertices.push(new THREE.Vector3( size, 0, i ));
-        geometry.vertices.push(new THREE.Vector3( i, 0, -size ));
-        geometry.vertices.push(new THREE.Vector3( i, 0, size ));
-    }
+    var geometry = new THREE.PlaneGeometry(1000,1000);
 
-    var material = new THREE.LineBasicMaterial( { color: 0x000000, opacity: 0.2 } );
+    var ground = new THREE.Mesh(geometry, material);
+    ground.rotation.x = -Math.PI/2;
+    ground.receiveShadow = true;
 
-    var line = new THREE.Line( geometry, material );
-    line.type = THREE.LinePieces;
-
-    return line;
+    return ground;
 }
 
 function randomCube(geometry, material) {
@@ -116,6 +118,8 @@ function randomCube(geometry, material) {
     //cube.position.y = ( cube.scale.y * 50 ) / 2;
     cube.position.y = 25;
     cube.position.z = Math.floor( ( Math.random() * 1000 - 500 ) /50 ) * 50 + 25;
+    cube.castShadow = true;
+    cube.receiveShadow = true;
     return cube;
 }
 
@@ -127,6 +131,8 @@ function cube(geometry, material, gridX, gridY) {
     cube.position.x = coords[0];
     cube.position.z = coords[1];
 
+    cube.castShadow = true;
+    cube.receiveShadow = true;
     return cube;
 }
 
@@ -137,7 +143,7 @@ function gridToCoord(x, y) {
 }
 
 function animate() {
-    requestAnimationFrame(animate);
+    requestAnimationFrame(animate); //do I need to use something like this shim instead (http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/)
     render();
 }
 
