@@ -31,7 +31,19 @@ function createFog() {
 }
 
 function createCube(size, x, y) {
+  var geometry = new THREE.BoxGeometry( size, size, size);
+  var material = new THREE.MeshPhongMaterial({
+    color:colours.dark1,
+    transparent:true,
+    opacity:0.6,
+    shading:THREE.FlatShading
+  });
+  var cube = new THREE.Mesh(geometry, material);
+  cube.position.set(x, y, 0);
+  cube.castShadow = true;
+  cube.receiveShadow = true;
 
+  return cube;
 }
 
 function createScene() {
